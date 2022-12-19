@@ -41,6 +41,7 @@ void display_item_name_id()
 	}
 	display.close();
 }
+
 void Add_Item()
 {
 	InventoryItem item;
@@ -60,41 +61,78 @@ void Add_Item()
 	Add.close();
 }
 
-void Assign()
+int Assign()
 {
+	display_item_name_id();
+	cout << endl << "Enter the id of the item you want to assign and faculty detail: " << endl;
 	int id;
+	ifstream count_check("inventory_item_data.txt");
 	Faculty assign;
-	
 	ofstream Assign_item("Faculty_data.txt", ios::app);
 	cout << "Item Id: "; cin >> id;
+
+	int i = 0;
+	int t = 100;
+	InventoryItem* Assign_item_count = new InventoryItem[t];
+	ifstream Assign_count("inventory_item_data.txt");
+	while (Assign_count >> Assign_item_count[i].Name)
+	{
+		Assign_count >> Assign_item_count[i].Item_Id;
+		Assign_count >> Assign_item_count[i].Category;
+		Assign_count >> Assign_item_count[i].Item_count;
+		if (id == Assign_item_count[i].Item_Id)
+		{
+			if (Assign_item_count[i].Item_count <= 0)
+			{
+				cout << "Sorry. No items in stock." << endl;
+				return 0;
+			}
+			Assign_item_count[i].Item_count--;
+		}
+		i++;
+		if (i > t)
+		{
+			InventoryItem* Assign_item_count = new InventoryItem[t + 100];
+		}
+	}
+
+	Assign_count.close();
 	cin.ignore();
-	cout << "Name: "; getline(cin, assign.Name); 
+	cout << "Name: "; getline(cin, assign.Name);
 	cout << "Subject: "; getline(cin, assign.subject);
 	cout << "Join year: "; cin >> assign.join_year;
 	cin.ignore();
 	cout << "Designation: "; getline(cin, assign.designation);
-
-	Assign_item << id << "\t" << assign.Name << "\t" << assign.subject 
+	Assign_item << id << " " << assign.Name << "\t" << assign.subject 
 		<< "\t" << assign.join_year  << "\t" << assign.designation << endl;
 	Assign_item.close();
+
+
+	ofstream Assign_invent_item("inventory_item_data.txt");
+	int j = 0;
+	while (j < i)
+	{
+		Assign_invent_item << Assign_item_count[j].Name << endl;
+		Assign_invent_item << Assign_item_count[j].Item_Id << endl;
+		Assign_invent_item << Assign_item_count[j].Category << endl;
+		Assign_invent_item << Assign_item_count[j].Item_count << endl;
+		j++;
+	}
+	Assign_invent_item.close();
+	delete[] Assign_item_count;
 }
 
 void showFacList(int id)
 {
 	int id_fac = 0;
 	Faculty show_list;
-	//Faculty* p_show = &show_list;
 	ifstream show_fac("Faculty_data.txt");
 	while (!(show_fac.eof()))
 	{
 		show_fac >> id_fac;
-		//show_fac.read(reinterpret_cast<char *>&show_list, sizeof(Faculty));
-		//show_fac >> show_list.Name;
-		getline(show_fac, show_list.Name);
-		//show_fac >> show_list.subject;
-		getline(show_fac, show_list.subject);
+		getline(show_fac, show_list.Name, '\t');
+		getline(show_fac, show_list.subject, '\t');
 		show_fac >> show_list.join_year;
-		//show_fac >> show_list.designation;
 		getline(show_fac, show_list.designation);
 		if (id_fac == id)
 		{
@@ -125,6 +163,27 @@ void show_inventory_items()
 	}
 	Show.close();
 }
+
+void search_inventory_item()
+{
+	InventoryItem search_item;
+	string item_name;
+	cout << "Enter name of the item you want to search for: "; cin >> item_name;
+	ifstream search_invent_item("inventory_item_data.txt");
+	search_invent_item >> search_item.Name;
+	search_invent_item >> search_item.Item_Id;
+	search_invent_item >> search_item.Category;
+	search_invent_item >> search_item.Item_count;
+}
+
+void fac_list_borrowed_item()
+{
+	int fac_list_id;
+	show_inventory_items();
+	cout << "Enter item ID for faculty data: "; cin >> fac_list_id;
+	showFacList(fac_list_id);
+}
+
 int main()
 {
 	cout << "Enter 1 to Add inventory items" << endl;
@@ -189,6 +248,7 @@ int main()
 	}
 	case '8':
 	{
+		fac_list_borrowed_item();
 		break;
 	}
 	}
