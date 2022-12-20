@@ -27,19 +27,71 @@ void display_item_name_id()
 {
 	InventoryItem item;
 	ifstream display("inventory_item_data.txt");
-	while (!(display.eof()))
+	while (getline(display, item.Name))
 	{
-		getline(display, item.Name);
+		//getline(display, item.Name);
 		display >> item.Item_Id;
 		display.ignore();
 		getline(display, item.Category);
 		display >> item.Item_count;
 		display.ignore();
-		
-		cout << "Name: " << item.Name << endl;
-		cout << "Item_Id: " << item.Item_Id << endl << endl;
+
+		cout << left << setw(7) << "Name" << ": " << item.Name << endl;
+		cout << left << setw(7) << "Item_Id" << ": " << item.Item_Id << endl << endl;
 	}
 	display.close();
+}
+
+void showFacList(int id)
+{
+	int id_fac = 0;
+	Faculty show_list;
+	ifstream show_fac("Faculty_data.txt");
+	while (!(show_fac.eof()))
+	{
+		show_fac >> id_fac;
+		getline(show_fac, show_list.Name, '\t');
+		getline(show_fac, show_list.subject, '\t');
+		show_fac >> show_list.join_year;
+		getline(show_fac, show_list.designation);
+		if (id_fac == id)
+		{
+			cout << "Name: " << show_list.Name << endl;
+			cout << "Subject: " << show_list.subject << endl;
+			cout << "Join year: " << show_list.join_year << endl;
+			cout << "Designation: " << show_list.designation << endl << endl;
+		}
+	}
+	show_fac.close();
+}
+
+bool string_compare(string s1, string s2)
+{
+	int l1 = s1.length();
+	int l2 = s2.length();
+	if (l1 == l2)
+	{
+		for (int i = 0; i < l1; i++)
+		{
+			if (s1[i] >= 65 && s1[i] <= 90)
+			{
+				s1[i] += 32;
+			}
+			if (s2[i] >= 65 && s2[i] <= 90)
+			{
+				s2[i] += 32;
+			}
+			if (s1[i] != s2[i])
+			{
+				return 0;
+			}
+		}
+	}
+	else if (l1 != l2)
+	{
+		return 0;
+	}
+	return 1;
 }
 
 void Add_Item()
@@ -61,10 +113,181 @@ void Add_Item()
 	Add.close();
 }
 
+void show_inventory_items()
+{
+	InventoryItem show_item;
+	//InventoryItem* p_show = &show_item;
+	ifstream Show("inventory_item_data.txt");
+	//int c = 0; 
+	while (!Show.eof())
+	{
+		Show >> show_item.Name;
+		Show >> show_item.Item_Id;
+		Show >> show_item.Category;
+		Show >> show_item.Item_count;
+		count_item++;
+		cout << left << setw(10) << "Name" << ": " << show_item.Name << endl << setw(10) << "Item Id" << ": " << show_item.Item_Id << endl << setw(10) << "Category" << ": " << show_item.Category
+			<< endl << setw(10) << "Item Count" << ": " << show_item.Item_count << endl << endl;
+	}
+	Show.close();
+}
+
+void search_inventory_item()
+{
+	bool item_find = 0;
+	InventoryItem search_item;
+	string item_name;
+	cout << "Name of the item to search: "; cin >> item_name;
+	ifstream search_invent_item("inventory_item_data.txt");
+	while (!search_invent_item.eof())
+	{
+		search_invent_item >> search_item.Name;
+		search_invent_item >> search_item.Item_Id;
+		search_invent_item >> search_item.Category;
+		search_invent_item >> search_item.Item_count;
+		if (string_compare(item_name, search_item.Name))
+		{
+			cout << left << setw(10) << "Name" << ": " << search_item.Name << endl;
+			cout << left << setw(10) << "Item Id" << ": " << search_item.Item_Id << endl;
+			cout << left << setw(10) << "Category" << ": " << search_item.Category << endl;
+			cout << left << setw(10) << "Item count" << ": " << search_item.Item_count << endl;
+			item_find = 1;
+		}
+	}
+	if (item_find == 0)
+	{
+		cout << "Item not found" << endl;
+	}
+}
+
+void edit_inventory_item()
+{
+	display_item_name_id();
+	int id = 0;
+	cout << "ID of item to be edited: "; cin >> id;
+	InventoryItem item1;
+	int count = 100;
+	int i = 0;
+	InventoryItem* edit_item = new InventoryItem[count];
+	ifstream file_edit("inventory_item_data.txt");
+	while (file_edit >> edit_item[i].Name)
+	{
+		file_edit >> edit_item[i].Item_Id;
+		file_edit >> edit_item[i].Category;
+		file_edit >> edit_item[i].Item_count;
+		if (id == edit_item[i].Item_Id)
+		{
+			cout << "*******EDITED INFORMATION*******" << endl;
+			cout << left << setw(10) << "Name" << ": "; cin >> edit_item[i].Name;
+			cout << left << setw(10) << "Item ID" << ": "; cout << edit_item[i].Item_Id << endl;
+			cout << left << setw(10) << "Category" << ": "; cin >> edit_item[i].Category;
+			cout << left << setw(10) << "Item count" << ": "; cin >> edit_item[i].Item_count;
+		}
+		i++;
+	}
+	file_edit.close();
+	ofstream file_rewrite("inventory_item_data.txt");
+	int j = 0;
+	while (j < i)
+	{
+		file_rewrite << edit_item[j].Name << endl;
+		file_rewrite << edit_item[j].Item_Id << endl;
+		file_rewrite << edit_item[j].Category << endl;
+		file_rewrite << edit_item[j].Item_count << endl;
+		j++;
+	}
+}
+
+void delete_inventory_item()
+{
+	display_item_name_id();
+
+	int id = 0;
+	cout << "ID of item to be deleted: "; cin >> id;
+	int count = 100;
+	int i = 0;
+	InventoryItem* edit_item = new InventoryItem[count];
+	ifstream file_edit("inventory_item_data.txt");
+	while (file_edit >> edit_item[i].Name)
+	{
+		file_edit >> edit_item[i].Item_Id;
+		file_edit >> edit_item[i].Category;
+		file_edit >> edit_item[i].Item_count;
+		if (id == edit_item[i].Item_Id)
+		{
+			edit_item[i].Name = "$$$$";
+			edit_item[i].Item_Id = -1;
+			edit_item[i].Category = "$$$$";
+			edit_item[i].Item_count = -1;
+		}
+		i++;
+		if (i > count)
+			InventoryItem* edit_item = new InventoryItem[count + 100];
+	}
+	ofstream file_rewrite("inventory_item_data.txt");
+	int j = 0;
+	while (j < i)
+	{
+		if (edit_item[j].Name!="$$$$")
+		file_rewrite << edit_item[j].Name << endl;
+		if (edit_item[j].Item_Id != -1)
+		file_rewrite << edit_item[j].Item_Id << endl;
+		if (edit_item[j].Category != "$$$$")
+		file_rewrite << edit_item[j].Category << endl;
+		if (edit_item[j].Item_Id != -1)
+		file_rewrite << edit_item[j].Item_count << endl;
+		j++;
+	}
+	/*int id;
+	cout << "ID of item you want to delete: "; cin >> id;
+	InventoryItem item;
+	int count = 100, i = 0, j = 0;
+	InventoryItem* delete_item = new InventoryItem[count];
+	cin.ignore();
+	ifstream file_delete("inventory_item_data");
+	while (!file_delete.eof())
+	{
+		file_delete >> delete_item[i].Name;
+		file_delete >> delete_item[i].Item_Id;
+		file_delete >> delete_item[i].Category;
+		file_delete >> delete_item[i].Item_count;
+		if (id == delete_item[i].Item_Id)
+		{
+			delete_item[i].Name = "$$$$";
+			delete_item[i].Item_Id = -1;
+			delete_item[i].Category = "$$$$";
+			delete_item[i].Item_count = -1;
+		}
+		i++;
+	file_delete.close();
+	ofstream rewrite_file("inventory_item_data.txt");
+	while (j < i)
+	{
+		if (delete_item[j].Name != "$$$$")
+		{
+			rewrite_file << delete_item[j].Name;
+		}
+		if (delete_item[j].Item_Id != -1)
+		{
+			rewrite_file << delete_item[j].Item_Id;
+		}
+		if (delete_item[j].Category != "$$$$")
+		{
+			rewrite_file << delete_item[j].Category;
+		}
+		if (delete_item[j].Item_count != -1)
+		{
+			rewrite_file << delete_item[j].Item_count;
+		}
+		j++;
+	}
+	}*/
+}
+
 int Assign()
 {
 	display_item_name_id();
-	cout << endl << "Enter the id of the item you want to assign and faculty detail: " << endl;
+	cout << endl << "ID of the item you want to assign and faculty detail: " << endl;
 	int id;
 	ifstream count_check("inventory_item_data.txt");
 	Faculty assign;
@@ -103,8 +326,8 @@ int Assign()
 	cout << "Join year: "; cin >> assign.join_year;
 	cin.ignore();
 	cout << "Designation: "; getline(cin, assign.designation);
-	Assign_item << id << " " << assign.Name << "\t" << assign.subject 
-		<< "\t" << assign.join_year  << "\t" << assign.designation << endl;
+	Assign_item << id << " " << assign.Name << "\t" << assign.subject
+		<< "\t" << assign.join_year << "\t" << assign.designation << endl;
 	Assign_item.close();
 
 
@@ -120,60 +343,6 @@ int Assign()
 	}
 	Assign_invent_item.close();
 	delete[] Assign_item_count;
-}
-
-void showFacList(int id)
-{
-	int id_fac = 0;
-	Faculty show_list;
-	ifstream show_fac("Faculty_data.txt");
-	while (!(show_fac.eof()))
-	{
-		show_fac >> id_fac;
-		getline(show_fac, show_list.Name, '\t');
-		getline(show_fac, show_list.subject, '\t');
-		show_fac >> show_list.join_year;
-		getline(show_fac, show_list.designation);
-		if (id_fac == id)
-		{
-			cout << "Name: " << show_list.Name << endl;
-			cout << "Subject: " << show_list.subject << endl;
-			cout << "Join year: " << show_list.join_year << endl;
-			cout << "Designation: " << show_list.designation << endl << endl;
-		}
-	}
-	show_fac.close();
-}
-
-void show_inventory_items()
-{
-	InventoryItem show_item;
-	//InventoryItem* p_show = &show_item;
-	ifstream Show("inventory_item_data.txt");
-	//int c = 0; 
-	while (!Show.eof())
-	{
-		Show >> show_item.Name;
-		Show >> show_item.Item_Id;
-		Show >> show_item.Category;
-		Show >> show_item.Item_count;
-		count_item++;
-		cout << left << setw(10) << "Name" << ": " << show_item.Name << endl << setw(10) << "Item Id" << ": " << show_item.Item_Id << endl << setw(10) << "Category" << ": " << show_item.Category
-			<< endl << setw(10) << "Item Count" << ": " << show_item.Item_count << endl << endl;
-	}
-	Show.close();
-}
-
-void search_inventory_item()
-{
-	InventoryItem search_item;
-	string item_name;
-	cout << "Enter name of the item you want to search for: "; cin >> item_name;
-	ifstream search_invent_item("inventory_item_data.txt");
-	search_invent_item >> search_item.Name;
-	search_invent_item >> search_item.Item_Id;
-	search_invent_item >> search_item.Category;
-	search_invent_item >> search_item.Item_count;
 }
 
 void fac_list_borrowed_item()
@@ -195,10 +364,10 @@ int main()
 	cout << "Enter 7 to Retrieve inventory item" << endl;
 	cout << "Enter 8 to View the list of faculty members who have borrowed a specific item" << endl;
 	cout << "Press Q to quit" << endl;
-	
+
 	char option = 0;
 	cout << "Enter your option: "; cin >> option;
-	
+
 	//Input validation
 	while (option != '1' && option != '2' && option != '3' && option != '4' && option != '5'
 		&& option != '6' && option != '7' && option != '8' && option != 'q' && option != 'Q')
@@ -227,14 +396,17 @@ int main()
 	}
 	case '3':
 	{
+		search_inventory_item();
 		break;
 	}
 	case '4':
 	{
+		edit_inventory_item();
 		break;
 	}
 	case '5':
 	{
+		delete_inventory_item();
 		break;
 	}
 	case '6':
@@ -252,6 +424,5 @@ int main()
 		break;
 	}
 	}
-
 	return 0;
-} 
+}
