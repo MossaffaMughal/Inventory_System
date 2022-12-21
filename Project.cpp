@@ -2,12 +2,22 @@
 #include <fstream>
 #include <string>
 #include <iomanip>
+
 using namespace std;
 
 int count_item = 0;
 
 struct Faculty
 {
+	string Name;
+	string subject;
+	int join_year;
+	string designation;
+};
+
+struct retrieve_faculty
+{
+	int id;
 	string Name;
 	string subject;
 	int join_year;
@@ -345,6 +355,75 @@ int Assign()
 	delete[] Assign_item_count;
 }
 
+void Retrieve()
+{
+	display_item_name_id();
+	int id;
+	cout << "Item ID you want to retrieve: "; cin >> id;
+	cin.clear();
+	retrieve_faculty fac_not_found;
+	int t = 100, i = 0, j = 0;
+	retrieve_faculty* fac_list = new retrieve_faculty[t];
+	ifstream faculty_retrieve("Faculty_data.txt");
+	//STORING ALL FACULTY MEMBERS HAVING THAT ITEM IN AN ARRAY
+	while (faculty_retrieve >> fac_list[i].id)
+	{
+		if (id == fac_list[i].id)
+		{
+			cin.ignore();
+			getline(faculty_retrieve, fac_list[i].Name, '\t');
+			getline(faculty_retrieve, fac_list[i].subject, '\t');
+			faculty_retrieve >> fac_list[i].join_year;
+			getline(faculty_retrieve, fac_list[i].designation, '\n');
+			i++;
+		}
+		else
+		{
+			getline(faculty_retrieve, fac_not_found.Name, '\t');
+			getline(faculty_retrieve, fac_not_found.subject, '\t');
+			faculty_retrieve >> fac_not_found.join_year;
+			getline(faculty_retrieve, fac_not_found.designation, '\n');
+		}
+	}
+	faculty_retrieve.close();
+	cout << left;
+	cout << endl << "\t\t**********FACULTY DESCRIPTION**********" << endl << endl;
+	cout << setw(10) << "ITEM ID" << setw(16) << "NAME" << setw(23) << "SUBJECT" << setw(15) << "JOIN YEAR" << "DESIGNATION" << endl << endl;
+	while (j < i)
+	{
+		cout << left << setw(9) << fac_list[j].id;
+		cout << left << setw(17) << fac_list[j].Name;
+		cout << left << setw(23) << fac_list[j].subject;
+		cout << left << setw(10) << fac_list[j].join_year;
+		cout << fac_list[j].designation;
+		cout << endl;
+		j++;
+	}
+	int k = 0;
+	string name1,name2;
+	cout << endl << "Teacher from whom u want to retrieve item: "; getline(cin, name1);
+	name1.erase(std::remove_if(name1.begin(), name1.end(), ::isspace), name1.end());
+	while (k < i)
+	{
+		fac_list[k].Name.erase(std::remove_if(fac_list[k].Name.begin(), fac_list[k].Name.end(), ::isspace), fac_list[k].Name.end());
+		if (string_compare(name1, fac_list[k].Name))
+		{
+			fac_list[k].id = -1;
+			fac_list[k].Name = "$$$$";
+			fac_list[k].subject = "$$$$";
+			fac_list[k].join_year = -1;
+			fac_list[k].designation = "$$$$";
+		}
+		k++;
+	}
+	j = 0;
+	ofstream fac_data_overwrite("Faculty_data.txt");
+	while (j < i)
+	{
+		
+	}
+}
+
 void fac_list_borrowed_item()
 {
 	int fac_list_id;
@@ -416,6 +495,7 @@ int main()
 	}
 	case '7':
 	{
+		Retrieve();
 		break;
 	}
 	case '8':
