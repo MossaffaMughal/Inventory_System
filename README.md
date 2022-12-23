@@ -18,7 +18,7 @@ So, basically we have created 2 files in this project. One is for the data of th
 This is a menu driven system and you can select different options for different functionalities. Enter the number corresponding to functionality you need as mentioned in the above list.
 
                  (Note: You'll get a dsiplay of the item names and ids first where needed. So, don't worry about remembering the ids!).
-      (Note: Make sure to enter valid inputs, specially in entering the ids and item counts to avoid going through the process and again. Id is a 4-digit                                                                            integer)
+      (Note: Make sure to enter valid inputs, specially in entering the ids and item counts to avoid going through the process and again. Id is a 4-digit integer).
 
                                                     ADDING AN INVENTORY ITEM
 To add an item, you will be asked to enter the name, id, category and the count of the item. Be careful to enter a 4-digit id. If you enter a string or some character in id or item count, you'll have to go through the process of repititive entry of the input. 
